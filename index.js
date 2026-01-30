@@ -42,7 +42,10 @@ app.use("/uploads", express.static("uploads"));
 app.use(cookieParser())
 
 app.use(cors({
-    origin: "https://react-tail-admin-at-infilon.vercel.app/auth/login",
+    origin: [
+        "http://localhost:5173",
+        "https://react-tail-admin-at-infilon.vercel.app"
+    ],
     credentials: true, //🔥 REQUIRED for cookies  , aa sikhvanu chhe ho....
 }))
 
