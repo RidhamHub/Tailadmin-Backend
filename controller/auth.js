@@ -90,15 +90,11 @@ const handleLoginUser = async (req, res) => {
         res.cookie("accessToken", accessToken, {
             maxAge: 15 * 60 * 1000,
             httpOnly: false,
-            secure: true,       // 🔥 REQUIRED because backend is HTTPS
-            sameSite: "none",   // 🔥 REQUIRED for cross-origin
+            // sameSite: "lax",
         })
 
         res.cookie("refreshToken", refreshToken, {
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            httpOnly: false,
-            secure: true,       // 🔥 REQUIRED because backend is HTTPS
-            sameSite: "none",   // 🔥 REQUIRED for cross-origin
+            maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
         res.json({
@@ -108,10 +104,6 @@ const handleLoginUser = async (req, res) => {
                 fullName: user.fullName,
                 profileImage: user.profileImage,
                 role: user.role,
-            },
-            tokens: {
-                accessToken,
-                refreshToken
             }
         })
     }
