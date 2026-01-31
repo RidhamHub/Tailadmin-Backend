@@ -91,8 +91,9 @@ const handleLoginUser = async (req, res) => {
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: isProd,                 // ❌ false on localhost
+            secure: isProd,                 // true on Vercel
             sameSite: isProd ? "none" : "lax",
+            path: "/",                      // 🔥 REQUIRED
             maxAge: 15 * 60 * 1000,
         });
 
@@ -100,6 +101,7 @@ const handleLoginUser = async (req, res) => {
             httpOnly: true,
             secure: isProd,
             sameSite: isProd ? "none" : "lax",
+            path: "/",                      // 🔥 REQUIRED
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
