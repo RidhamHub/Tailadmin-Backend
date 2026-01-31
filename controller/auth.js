@@ -90,17 +90,15 @@ const handleLoginUser = async (req, res) => {
         res.cookie("accessToken", accessToken, {
             maxAge: 15 * 60 * 1000,
             httpOnly: false,
-            secure: process.env.NODE_ENV === "production", // HTTPS only in production
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // "none" required for cross-site in production
-            domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : undefined
+            secure: true,      // REQUIRED for HTTPS
+            sameSite: "lax",  // REQUIRED for cross-site
         })
 
         res.cookie("refreshToken", refreshToken, {
             maxAge: 7 * 24 * 60 * 60 * 1000,
             httpOnly: false,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : undefined
+            secure: true,      // REQUIRED for HTTPS
+            sameSite: "lax",  // REQUIRED for cross-site
         })
 
         res.json({
