@@ -15,12 +15,17 @@ mongoose.connect(process.env.MONGO_URL)
         console.error("MongoDB connection error:", err);
         process.exit(1);
     });
+
+app.use(cors());
+app.use(cookieParser())
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use("/uploads", express.static("uploads"));
+
 const userRouter = require('./routes/auth')
 const productRouter = require('./routes/product')
 
 const authmiddleware = require("./middleware/authmiddleware")
-
-
 const multer = require("multer");
 
 app.use((err, req, res, next) => {
@@ -40,42 +45,6 @@ app.use((err, req, res, next) => {
     next();
 });
 
-
-app.use("/uploads", express.static("uploads"));
-
-// CORS configuration - allow both production and localhost for development
-const allowedOrigins = [
-    "https://react-tail-admin-at-infilon.vercel.app",
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:3000"
-];
-
-app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(null, true); // Allow all origins in development (you can restrict this in production)
-        }
-    },
-    credentials: true,
-}));
-
-// ✅ FIXED preflight handler
-app.options(/.*/, cors());
-
-
-app.use(cookieParser())
-
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-
-
 app.get("/", (req, res) => {
     res.status(200).json({
         status: "ok",
@@ -86,7 +55,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth", userRouter)
 // app.use(authmiddleware)
-app.use("/product", authmiddleware, productRouter);
+app.use("/product", productRouter);
 
 app.listen(Port, () => {
     console.log("server started at port 7000");

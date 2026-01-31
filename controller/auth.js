@@ -88,25 +88,24 @@ const handleLoginUser = async (req, res) => {
         user.refreshToken = refreshToken;
         await user.save();
 
-
         // Cookie settings - secure only in production
         const isProduction = process.env.NODE_ENV === "production";
-        
-        res.cookie("accessToken", accessToken, {
-            httpOnly: true,
-            secure: isProduction,          // Only secure in production (HTTPS)
-            sameSite: isProduction ? "none" : "lax",      // "none" for cross-domain in production, "lax" for localhost
-            path: "/",             // 🔥 REQUIRED (VERY IMPORTANT)
-            maxAge: 15 * 60 * 1000,
-        });
 
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: isProduction,
-            sameSite: isProduction ? "none" : "lax",
-            path: "/",             // 🔥 REQUIRED
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
+        // res.cookie("accessToken", accessToken, {
+        //     httpOnly: true,
+        //     secure: isProduction,          // Only secure in production (HTTPS)
+        //     sameSite: isProduction ? "none" : "lax",      // "none" for cross-domain in production, "lax" for localhost
+        //     path: "/",             // 🔥 REQUIRED (VERY IMPORTANT)
+        //     maxAge: 15 * 60 * 1000,
+        // });
+
+        // res.cookie("refreshToken", refreshToken, {
+        //     httpOnly: true,
+        //     secure: isProduction,
+        //     sameSite: isProduction ? "none" : "lax",
+        //     path: "/",             // 🔥 REQUIRED
+        //     maxAge: 7 * 24 * 60 * 60 * 1000,
+        // });
 
 
         res.json({
@@ -116,6 +115,10 @@ const handleLoginUser = async (req, res) => {
                 fullName: user.fullName,
                 profileImage: user.profileImage,
                 role: user.role,
+            },
+            tokens: {
+                accessToken,
+                refreshToken
             }
         })
     }
@@ -154,7 +157,7 @@ const handleRefershToken = async (req, res) => {
         )
 
         const isProduction = process.env.NODE_ENV === "production";
-        
+
         res.cookie("accessToken", newAccessToken, {
             httpOnly: true,
             secure: isProduction,

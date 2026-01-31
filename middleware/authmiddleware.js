@@ -3,15 +3,14 @@ const jwt = require("jsonwebtoken")
 const authMiddleware = (req, res, next) => {
 
     try {
-        const accessToken = req.cookies.accessToken;
-        // console.log("Incoming cookies in auth middleware:", req.cookies);
+        const accessToken = req.cookies.accessToken || req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
 
         if (!accessToken) {
             return res.status(401).json({ msg: "Access denied. token not found for authentication" });
         }
         const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
 
-        req.user = decoded; // we have to give jwt details to next function that is why we add this in req.user here
+        req.user = decoded;
         next();
 
     }
