@@ -89,18 +89,21 @@ const handleLoginUser = async (req, res) => {
         await user.save();
 
 
+        // Cookie settings - secure only in production
+        const isProduction = process.env.NODE_ENV === "production";
+        
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: true,          // REQUIRED on Vercel
-            sameSite: "none",      // REQUIRED cross-domain
+            secure: isProduction,          // Only secure in production (HTTPS)
+            sameSite: isProduction ? "none" : "lax",      // "none" for cross-domain in production, "lax" for localhost
             path: "/",             // 🔥 REQUIRED (VERY IMPORTANT)
             maxAge: 15 * 60 * 1000,
         });
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: "none",
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
             path: "/",             // 🔥 REQUIRED
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
@@ -134,7 +137,7 @@ const handleRefershToken = async (req, res) => {
 
         const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
-        const user = User.findById(decoded.userId);
+        const user = await User.findById(decoded.userId);
         if (!user || !user.refreshToken) {
             return res.status(403).json({ msg: "Invalid refreshToken" });
         }
@@ -150,7 +153,15 @@ const handleRefershToken = async (req, res) => {
             }
         )
 
-        res.cookie("accessToken", newAccessToken);
+        const isProduction = process.env.NODE_ENV === "production";
+        
+        res.cookie("accessToken", newAccessToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            path: "/",
+            maxAge: 15 * 60 * 1000,
+        });
 
         res.json({ msg: "Token Refreshed Successfully......." })
 

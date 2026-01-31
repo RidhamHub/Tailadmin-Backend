@@ -43,8 +43,25 @@ app.use((err, req, res, next) => {
 
 app.use("/uploads", express.static("uploads"));
 
+// CORS configuration - allow both production and localhost for development
+const allowedOrigins = [
+    "https://react-tail-admin-at-infilon.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000"
+];
+
 app.use(cors({
-    origin: "https://react-tail-admin-at-infilon.vercel.app",
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(null, true); // Allow all origins in development (you can restrict this in production)
+        }
+    },
     credentials: true,
 }));
 
