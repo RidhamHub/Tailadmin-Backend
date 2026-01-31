@@ -43,17 +43,24 @@ app.use((err, req, res, next) => {
 
 app.use("/uploads", express.static("uploads"));
 
+app.use(cors({
+    origin: ["http://localhost:5173", "https://react-tail-admin-at-infilon.vercel.app"],
+    credentials: true,
+}));
+
 app.use(cookieParser())
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-app.use(cors({
-    origin: "http://localhost:5173", // EXACT frontend URL
-    credentials: true,
-}));
 
 
+app.get("/", (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        message: "Backend is running",
+    });
+});
 
 
 app.use("/auth", userRouter)
