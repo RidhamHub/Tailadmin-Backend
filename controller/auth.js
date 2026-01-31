@@ -2,6 +2,8 @@ const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const isProd = process.env.NODE_ENV === "production";
+
 
 const createUser = async (req, res) => {
 
@@ -88,18 +90,19 @@ const handleLoginUser = async (req, res) => {
 
 
         res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: isProd,                 // ❌ false on localhost
+            sameSite: isProd ? "none" : "lax",
             maxAge: 15 * 60 * 1000,
-            httpOnly: false,
-            secure: true,      // REQUIRED for HTTPS
-            sameSite: "lax",  // REQUIRED for cross-site
-        })
+        });
 
         res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
-            httpOnly: false,
-            secure: true,      // REQUIRED for HTTPS
-            sameSite: "lax",  // REQUIRED for cross-site
-        })
+        });
+
 
         res.json({
             msg: "user logged in succeefully  ",

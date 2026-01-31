@@ -4,6 +4,7 @@ const authMiddleware = (req, res, next) => {
 
     try {
         const accessToken = req.cookies.accessToken;
+        // console.log("Incoming cookies in auth middleware:", req.cookies);
 
         if (!accessToken) {
             return res.status(401).json({ msg: "Access denied. token not found for authentication" });
