@@ -63,8 +63,8 @@ app.get("/", (req, res) => {
 
 
 app.use("/auth", userRouter)
-// app.use(authmiddleware)
-// app.use("/product", productRouter);
+app.use(authmiddleware)
+app.use("/product", productRouter);
 
 // Export for Vercel serverless
 module.exports = app;
