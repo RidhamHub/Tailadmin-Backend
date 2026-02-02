@@ -21,36 +21,29 @@ mongoose.connect(process.env.MONGO_URL)
 // CORS configuration - allow frontend domain
 const allowedOrigins = [
     process.env.FRONTEND_URL,
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://localhost:5174'
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://localhost:5174"
 ].filter(Boolean);
 
-app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        // In development, allow all origins
-        if (process.env.NODE_ENV !== 'production') {
-            return callback(null, true);
-        }
-        // In production, check against allowed origins
-        if (allowedOrigins.some(allowed => origin.includes(allowed.replace('https://', '').replace('http://', '')))) {
-            callback(null, true);
-        } else {
-            // For Vercel, be more permissive - allow any vercel.app domain if FRONTEND_URL is set
-            if (process.env.FRONTEND_URL && origin.includes('.vercel.app')) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            // allow server-to-server or curl
+            if (!origin) return callback(null, true);
 
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            return callback(new Error("Not allowed by CORS"));
+        },
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"]
+    })
+);
+app.options("*", cors());
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
