@@ -9,7 +9,21 @@ const createUser = async (req, res) => {
 
     try {
         const { fullName, email, password } = req.body;
-        const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
+        
+        // Handle file upload - support both disk and memory storage
+        let imagePath = "";
+        if (req.file) {
+            if (req.file.buffer) {
+                // Memory storage (Vercel serverless) - convert to base64
+                // Note: For production, consider using cloud storage (S3, Cloudinary, etc.)
+                const base64Image = req.file.buffer.toString('base64');
+                const dataUri = `data:${req.file.mimetype};base64,${base64Image}`;
+                imagePath = dataUri;
+            } else {
+                // Disk storage (local development)
+                imagePath = `/uploads/${req.file.filename}`;
+            }
+        }
 
         // console.log("REQ BODY:", req.body);
         // console.log("REQ FILE:", req.file);
@@ -133,7 +147,8 @@ const handleLoginUser = async (req, res) => {
 
 const handleRefershToken = async (req, res) => {
     try {
-        const refreshToken = req.cookies.refreshToken;
+        // Try to get refresh token from cookies, body, or headers
+        const refreshToken = req.cookies.refreshToken || req.body.refreshToken || (req.headers['authorization'] && req.headers['authorization'].startsWith('Bearer ') ? req.headers['authorization'].split(' ')[1] : null);
         if (!refreshToken) {
             return res.status(401).json({ msg: "refreshtoken not found." })
         }
@@ -158,6 +173,7 @@ const handleRefershToken = async (req, res) => {
 
         const isProduction = process.env.NODE_ENV === "production";
 
+        // Set cookie if possible
         res.cookie("accessToken", newAccessToken, {
             httpOnly: true,
             secure: isProduction,
@@ -166,7 +182,11 @@ const handleRefershToken = async (req, res) => {
             maxAge: 15 * 60 * 1000,
         });
 
-        res.json({ msg: "Token Refreshed Successfully......." })
+        // Also return in response body for localStorage usage
+        res.json({ 
+            msg: "Token Refreshed Successfully.......",
+            accessToken: newAccessToken
+        })
 
 
     }
